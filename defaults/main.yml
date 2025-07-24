@@ -10,6 +10,8 @@ easyrsa_path: /usr/share/easy-rsa/
 enable_admin: true
 run_mode: dev
 openvpn_ui_user: openvpn-ui
+openvpn_ui_workdir: "{{ build_dir }}"
+openvpn_ui_exec_path: "/opt/openvpn-ui/openvpn-ui"
 
 go_env:
   PATH: "/usr/local/go/bin:{{ ansible_env.HOME }}/go/bin:{{ ansible_env.PATH }}"

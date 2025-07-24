@@ -3,4 +3,4 @@
   systemd_service:
     name: openvpn-ui
     state: started
-    enable: true
+    enabled: true
