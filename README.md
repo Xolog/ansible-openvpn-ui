@@ -1,5 +1,4 @@
 # Ansible Role: openvpn-ui
-
 =========
 
 This Ansible role installs and configures [OpenVPN-UI](https://github.com/d3vilh/openvpn-ui) — a web-based UI for managing an existing OpenVPN server — as a **standalone binary** with a **systemd service**.
