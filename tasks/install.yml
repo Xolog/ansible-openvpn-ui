@@ -1,0 +1,124 @@
+---
+- name: OpenVPN-UI | Install | Ensure required packages are installed
+  apt:
+    name:
+      - wget
+      - sed
+      - gcc
+      - git
+      - musl-tools
+      - easy-rsa
+      - curl
+      - jq
+      - oathtool
+    state: present
+    update_cache: yes
+
+- name: OpenVPN-UI | Install | Check if Go is already installed
+  command: go version
+  register: go_version_output
+  ignore_errors: true
+  environment: "{{ go_env }}"
+
+- name: OpenVPN-UI | Install | Get Go version
+  set_fact:
+    go_installed_version: "{{ go_version_output.stdout | regex_search('go([0-9.]+)', '\\1') | join('') }}" 
+
+- name: OpenVPN-UI | Install | Determine if Go installation is needed
+  set_fact:
+    go_install_needed: 
+      "{{ (go_version_output.rc != 0) or (go_installed_version) is version(go_version, '<') }}"
+
+- name: OpenVPN-UI | Install | Download Go {{ go_version }}
+  get_url:
+    url: "{{ go_url }}"
+    dest: "/tmp/{{ go_tarball }}"
+  when: go_install_needed
+
+- name: OpenVPN-UI | Install | Remove previous Go installation
+  file:
+    path: "{{ go_install_dir }}"
+    state: absent
+  when: go_install_needed
+
+- name: OpenVPN-UI | Install | Extract Go archive
+  unarchive:
+    src: "/tmp/{{ go_tarball }}"
+    dest: "/usr/local"
+    remote_src: yes
+  when: go_install_needed
+
+- name: OpenVPN-UI | Install | Ensure global GOPATH and GOBIN for all users
+  copy:
+    dest: /etc/profile.d/golang_paths.sh
+    content: |
+      export GOPATH=$HOME/go
+      export PATH=/usr/local/go/bin:$GOPATH/bin:$PATH
+    mode: '0755'
+
+- name: OpenVPN-UI | Install | Check if repo openvpn-ui directory exists
+  stat:
+    path: "{{ build_dir }}"
+  register: openvpn_ui_repo_exists
+
+- name: OpenVPN-UI | Configure | Create openvpn-ui user
+  user:
+    name: "{{ openvpn_ui_user }}"
+    comment: User for openvpn-ui service
+    shell: /usr/sbin/nologin
+
+- name: OpenVPN-UI | Install | Create build directory
+  file:
+    path: "{{ build_dir }}"
+    state: directory
+    owner: "{{ openvpn_ui_user }}"
+    mode: '0755'
+  when: not openvpn_ui_repo_exists.stat.exists
+
+- name: OpenVPN-UI | Install | Clone OpenVPN-UI repo
+  git:
+    repo: "https://github.com/d3vilh/openvpn-ui"
+    dest: "{{ build_dir }}"
+    version: "main"
+    update: yes
+  when: not openvpn_ui_repo_exists.stat.exists
+
+- name: OpenVPN-UI | Install | Download Go modules
+  shell: go mod download
+  args:
+    chdir: "{{ build_dir }}"
+  environment: "{{ go_env }}"
+
+- name: OpenVPN-UI | Install | Install Beego v2
+  shell: go install github.com/beego/bee/v2@develop
+  environment: "{{ go_env }}"
+
+- name: OpenVPN-UI | Install | Build OpenVPN-UI
+  shell: |
+    bee pack -exr='^vendor|^ace.tar.bz2|^data.db|^build|^README.md|^docs'
+  args:
+    chdir: "{{ build_dir }}"
+  environment:
+    PATH: "{{ go_env.PATH }}"
+    GO111MODULE: "auto"
+    CGO_ENABLED: 1
+    CC: "musl-gcc"
+
+- name: OpenVPN-UI | Install | Check if repo qrencode directory exists
+  stat:
+    path: "{{ qrencode_dir }}"
+  register: qrencode_repo_exists
+
+- name: OpenVPN-UI | Install | Clone qrencode repo
+  git:
+    repo: "https://github.com/d3vilh/qrencode"
+    dest: "{{ qrencode_dir }}"
+    version: "main"
+  when: not qrencode_repo_exists.stat.exists
+
+- name: OpenVPN-UI | Install | Build qrencode binary
+  shell: |
+    go build -o qrencode main.go
+  args:
+    chdir: "{{ qrencode_dir }}"
+  environment: "{{ go_env }}"

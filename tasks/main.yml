@@ -1,0 +1,9 @@
+---
+- name: OpenVPN-UI | Include install
+  include_tasks: install.yml
+
+- name: OpenVPN-UI | Include configure
+  include_tasks: configure.yml
+
+- name: OpenVPN-UI | Include start 
+  include_tasks: start.yml

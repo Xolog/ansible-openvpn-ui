@@ -1,0 +1,23 @@
+---
+go_version: "1.21.5"
+go_tarball: "go{{ go_version }}.linux-amd64.tar.gz"
+go_url: "https://golang.org/dl/{{ go_tarball }}"
+go_install_dir: "/usr/local/go"
+build_dir: "/opt/openvpn-ui"
+qrencode_dir: "{{ build_dir }}/qrencode"
+openvpn_path: /etc/openvpn
+easyrsa_path: /usr/share/easy-rsa/
+enable_admin: true
+run_mode: dev
+openvpn_ui_user: openvpn-ui
+
+go_env:
+  PATH: "/usr/local/go/bin:{{ ansible_env.HOME }}/go/bin:{{ ansible_env.PATH }}"
+  HOME: "{{ ansible_env.HOME }}"
+
+OPENVPN_ADMIN_USERNAME: admin
+OPENVPN_ADMIN_PASSWORD: password
+GOOGLE_CLIENT_ID: ""
+GOOGLE_CLIENT_SECRET: ""
+GOOGLE_REDIRECT_URL: ""
+ALLOWED_DOMAINS: ""

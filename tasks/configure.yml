@@ -1,0 +1,50 @@
+---
+- name: OpenVPN-UI | Configure | Set +x mode on qrencode binary
+  file: 
+    dest: "{{ qrencode_dir }}/qrencode"
+    mode: a+x
+
+- name: OpenVPN-UI | Configure | Move qrencode binary to GOPATH bin
+  shell: mv qrencode "$(go env GOPATH)/bin"
+  args:
+    chdir: "{{ qrencode_dir }}"
+  environment: "{{ go_env }}"
+
+- name: OpenVPN-UI | Configure | Ensure openvpn-ui binary execute
+  file: 
+    path: "/opt/openvpn-ui/openvpn-ui"
+    mode: "0755"
+    state: file
+
+- name: OpenVPN-UI | Configure | Create db directory
+  file: 
+    path: "{{ build_dir }}/db/"
+    mode: "0755"
+    state: directory
+    owner: "{{ openvpn_ui_user }}"
+
+- name: OpenVPN-UI | Configure | Create app.conf
+  template: 
+    src: /templates/app.conf.j2
+    dest: "{{ build_dir }}/conf/app.conf"
+    mode: "0644"
+
+- name: OpenVPN-UI | Configure | Create env file
+  copy:
+    dest: /etc/default/openvpn-ui
+    content: |
+      OPENVPN_ADMIN_USERNAME: "{{ OPENVPN_ADMIN_USERNAME }}"
+      OPENVPN_ADMIN_PASSWORD: "{{ OPENVPN_ADMIN_PASSWORD }}"
+      GOOGLE_CLIENT_ID: "{{ GOOGLE_CLIENT_ID }}"
+      GOOGLE_CLIENT_SECRET: "{{ GOOGLE_CLIENT_SECRET }}"
+      GOOGLE_REDIRECT_URL: "{{ GOOGLE_REDIRECT_URL }}"
+      ALLOWED_DOMAINS: "{{ ALLOWED_DOMAINS }}"
+    mode: '0644'
+
+- name: OpenVPN-UI | Configure | Create systemd service
+  template: 
+    src: templates/openvpn-ui.service.j2
+    dest: /etс/systemd/system/openvpn-ui.service
+    mode: '0644'
+  notify: 
+    - Reload systemd

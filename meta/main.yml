@@ -1,0 +1,33 @@
+galaxy_info:
+  role_name: openvpn_ui
+  author: Xolog
+  description: >
+    Installs and configures OpenVPN-UI — a web-based interface to manage OpenVPN servers as a standalone Go binary service with systemd.
+  company: ''
+
+  license: Apache-2.0
+
+  min_ansible_version: 2.9
+
+  platforms:
+    - name: Debian
+      versions:
+        - buster
+        - bullseye
+        - bookworm
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
+        - noble
+
+  galaxy_tags:
+    - openvpn
+    - vpn
+    - ui
+    - web
+    - networking
+    - linux
+    - ubuntu
+
+dependencies: []

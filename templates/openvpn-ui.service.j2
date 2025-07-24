@@ -1,0 +1,17 @@
+[Unit]
+Description=OpenVPN-UI service
+After=network.target
+
+[Service]
+User={{ openvpn_ui_user }}
+Group={{ openvpn_ui_user }}
+WorkingDirectory={{ openvpn_ui_workdir }}
+ExecStart={{ openvpn_ui_exec_path }}
+ExecStop=/bin/kill -s TERM $MAINPID
+EnvironmentFile=/etc/default/openvpn-ui
+PrivateTmp=true
+Restart=on-failure
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,6 @@
+---
+- name: OpenVPN-UI | Start | Start OpenVPN-UI service
+  systemd_service:
+    name: openvpn-ui
+    state: started
+    enable: true
