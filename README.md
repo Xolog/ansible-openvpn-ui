@@ -40,9 +40,9 @@ openvpn_path: /etc/openvpn
 easyrsa_path: /usr/share/easy-rsa/
 enable_admin: true
 run_mode: dev
-openvpn_ui_user: openvpn-ui
 openvpn_ui_workdir: "{{ build_dir }}"
 openvpn_ui_exec_path: "/opt/openvpn-ui/openvpn-ui"
+open_vpn_management_address: 127.0.0.1:6666
 
 # Environment variables for Go
 go_env:

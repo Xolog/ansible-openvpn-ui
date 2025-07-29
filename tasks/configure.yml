@@ -21,7 +21,7 @@
     path: "{{ build_dir }}/db/"
     mode: "0755"
     state: directory
-    owner: "{{ openvpn_ui_user }}"
+    owner: "root"
 
 - name: OpenVPN-UI | Configure | Create app.conf
   template: 
@@ -34,7 +34,7 @@
     dest: /etc/default/openvpn-ui
     content: |
       OPENVPN_ADMIN_USERNAME="{{ OPENVPN_ADMIN_USERNAME }}"
-      OPENVPN_ADMIN_PASSWORD="{{ OPENVPN_ADMIN_PASSWORD }}"
+      OPENVPN_ADMIN_PASSWORD='{{ OPENVPN_ADMIN_PASSWORD }}'
       GOOGLE_CLIENT_ID="{{ GOOGLE_CLIENT_ID }}"
       GOOGLE_CLIENT_SECRET="{{ GOOGLE_CLIENT_SECRET }}"
       GOOGLE_REDIRECT_URL="{{ GOOGLE_REDIRECT_URL }}"
@@ -48,3 +48,39 @@
     mode: '0644'
   notify: 
     - Reload systemd
+
+- name: OpenVPN-UI | Configure | Create script directory
+  file:
+    path: /opt/scripts
+    mode: 0755
+    state: directory
+    owner: "root"
+
+- name: OpenVPN-UI | Configure | Add scripts for ui
+  copy:
+    src: "{{ item }}"
+    dest: "/opt/scripts/{{ item }}"
+    mode: 0744
+    owner: "root"
+  loop:
+    - generate_ca_and_server_certs.sh
+    - genclient.sh
+    - revoke.sh
+    - restart.sh
+    - rmcert.sh
+    - remove.sh
+    - renew.sh
+
+- name: OpenVPN-UI | Configure | Add easy-rsa lib for ui
+  copy:
+    src: easyrsa-tools.lib
+    dest: "{{ easyrsa_path }}/easyrsa-tools.lib"
+    mode: 0744
+    owner: root
+
+- name: OpenVPN-UI | Configure | Create client directory
+  file: 
+    path: "{{ openvpn_path }}/clients"
+    mode: 0644
+    state: directory
+    owner: root

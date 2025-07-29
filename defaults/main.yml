@@ -5,13 +5,14 @@ go_url: "https://golang.org/dl/{{ go_tarball }}"
 go_install_dir: "/usr/local/go"
 build_dir: "/opt/openvpn-ui"
 qrencode_dir: "{{ build_dir }}/qrencode"
+
 openvpn_path: /etc/openvpn
-easyrsa_path: /usr/share/easy-rsa/
+easyrsa_path: /usr/share/easy-rsa
 enable_admin: true
 run_mode: dev
-openvpn_ui_user: openvpn-ui
 openvpn_ui_workdir: "{{ build_dir }}"
 openvpn_ui_exec_path: "/opt/openvpn-ui/openvpn-ui"
+open_vpn_management_address: 127.0.0.1:6666
 
 go_env:
   PATH: "/usr/local/go/bin:{{ ansible_env.HOME }}/go/bin:{{ ansible_env.PATH }}"

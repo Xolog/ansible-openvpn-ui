@@ -61,17 +61,11 @@
     path: "{{ build_dir }}"
   register: openvpn_ui_repo_exists
 
-- name: OpenVPN-UI | Configure | Create openvpn-ui user
-  user:
-    name: "{{ openvpn_ui_user }}"
-    comment: User for openvpn-ui service
-    shell: /usr/sbin/nologin
-
 - name: OpenVPN-UI | Install | Create build directory
   file:
     path: "{{ build_dir }}"
     state: directory
-    owner: "{{ openvpn_ui_user }}"
+    owner: "root"
     mode: '0755'
   when: not openvpn_ui_repo_exists.stat.exists
 
